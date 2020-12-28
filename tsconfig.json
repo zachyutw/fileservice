@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
         "target": "es6",
+        "lib": ["es2019", "DOM", "ES6", "DOM.Iterable", "ScriptHost"],
         "module": "commonjs",
         "rootDir": "./",
-        "outDir": "./build",
+        "outDir": "./serve",
         "esModuleInterop": true,
         "strict": false
     }

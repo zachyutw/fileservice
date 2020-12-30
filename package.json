@@ -8,7 +8,7 @@
         "start": "node ./serve/index.js",
         "dev": "nodemon index.ts",
         "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
-        "heroku-deploy": "git push heroku main",
+        "heroku-deploy": "git push heroku master",
         "heroku-confirm": "heroku ps:scale web=1"
     },
     "keywords": [

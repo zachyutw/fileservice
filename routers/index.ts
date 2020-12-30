@@ -11,5 +11,7 @@ export default function (app: express.Application) {
         );
     });
     app.use('/assets', express.static(path.join(ROOT_PATH, 'assets')));
-    app.get('/', (req, res) => res.send('Image Upload Server'));
+    app.get('/', (req, res) =>
+        res.sendFile(path.join(ROOT_PATH, 'index.html'))
+    );
 }

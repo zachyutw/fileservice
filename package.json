@@ -9,7 +9,11 @@
         "dev": "nodemon index.ts",
         "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
         "heroku-deploy": "git push heroku master",
-        "heroku-confirm": "heroku ps:scale web=1"
+        "heroku-confirm": "heroku ps:scale web=1",
+        "heroku-open": "heroku open",
+        "heroku-local-web": "heroku local web",
+        "heroku-local": "heroku local",
+        "heroku-run-bash": "heroku run bash"
     },
     "keywords": [
         "node",
@@ -19,6 +23,9 @@
     "author": {
         "name": "Zach Yu",
         "email": "zachyu.tw@gmail.com"
+    },
+    "heroku": {
+        "url": "https://protected-ravine-86255.herokuapp.com"
     },
     "license": "MIT",
     "dependencies": {

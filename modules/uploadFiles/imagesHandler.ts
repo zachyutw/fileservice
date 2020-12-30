@@ -10,16 +10,13 @@ const MAX_SIZE = 1 * 1000 * 1000;
 
 const COVER_MAX_COUNT = 2;
 const GALLERY_MAX_COUNT = 4;
-
-const LOGO =
-    'https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Australian_Defence_Force_Academy_coat_of_arms.svg/1200px-Australian_Defence_Force_Academy_coat_of_arms.svg.png';
 const LOGO_MARGIN_PERCENTAGE = 5;
 
 const fileFilter = (req, file, cb) => {
     if (file.mimetype == 'image/jpeg' || file.mimetype == 'image/png') {
         cb(null, true);
     } else {
-        cb(null, false);
+        cb(new Error('Only pdfs are allowed'), false);
     }
 };
 
@@ -61,78 +58,85 @@ const watermarking = async (originalImage, logoImage) => {
 };
 
 export const resizeImage = async (req, res, next) => {
-    const filename: string = `images-${Date.now()}.jpeg`;
-
-    const { fileUrl, uploadPath } = namingFiles(
-        ROOT_PATH,
-        SERVER_DOMAIN,
-        IMAGES_STORAGE_DESTINATION_PATH
-    );
-
-    const sizes = [
-        {
-            path: 'original',
-            width: null,
-            height: null,
-        },
-        {
-            path: 'large',
-            width: 800,
-            height: 800,
-        },
-        {
-            path: 'medium',
-            width: 300,
-            height: 300,
-        },
-        {
-            path: 'thumbnail',
-            width: 100,
-            height: 100,
-        },
-    ];
-    // sharp options
-    const sharpOptions = {
-        fit: 'contain',
-        background: { r: 255, g: 255, b: 255 },
-    };
-
-    const resizeObj = new MulterSharpResizer(
-        req,
-        filename,
-        sizes,
-        uploadPath,
-        fileUrl,
-        sharpOptions
-    );
-
-    await resizeObj.resize();
-    const getDataUploaded = resizeObj.getData();
-
-    if (req.query.createWaterMark) {
-        await Promise.all(
-            Object.values(getDataUploaded)
-                .flat()
-                .map(async ({ originalname, ...rest }) => {
-                    await Promise.all(
-                        Object.values(rest).map(async ({ path: imagePath }) => {
-                            const filePath = imagePath.replace(
-                                SERVER_DOMAIN,
-                                ROOT_PATH
-                            );
-                            await watermarking(
-                                filePath,
-                                req.query.logoImage || WATER_MARK_LOGO
-                            ).then((image) => {
-                                image.write(filePath);
-                            });
-                        })
-                    );
-                })
+    try {
+        const filename: string = `images-${Date.now()}.jpeg`;
+        const userId = req.body.userId || req.query.userId;
+        const { fileUrl, uploadPath } = namingFiles(
+            ROOT_PATH,
+            SERVER_DOMAIN,
+            IMAGES_STORAGE_DESTINATION_PATH,
+            userId
         );
-    }
 
-    req.body.cover = getDataUploaded.cover;
-    req.body.gallery = getDataUploaded.gallery;
-    next();
+        const sizes = [
+            {
+                path: 'original',
+                width: null,
+                height: null,
+            },
+            {
+                path: 'large',
+                width: 800,
+                height: 800,
+            },
+            {
+                path: 'medium',
+                width: 300,
+                height: 300,
+            },
+            {
+                path: 'thumbnail',
+                width: 100,
+                height: 100,
+            },
+        ];
+        // sharp options
+        const sharpOptions = {
+            fit: 'contain',
+            background: { r: 255, g: 255, b: 255 },
+        };
+
+        const resizeObj = new MulterSharpResizer(
+            req,
+            filename,
+            sizes,
+            uploadPath,
+            fileUrl,
+            sharpOptions
+        );
+
+        await resizeObj.resize();
+        const getDataUploaded = resizeObj.getData();
+
+        if (req.query.createWaterMark) {
+            await Promise.all(
+                Object.values(getDataUploaded)
+                    .flat()
+                    .map(async ({ originalname, ...rest }) => {
+                        await Promise.all(
+                            Object.values(rest).map(
+                                async ({ path: imagePath }) => {
+                                    const filePath = imagePath.replace(
+                                        SERVER_DOMAIN,
+                                        ROOT_PATH
+                                    );
+                                    await watermarking(
+                                        filePath,
+                                        req.query.logoImage || WATER_MARK_LOGO
+                                    ).then((image) => {
+                                        image.write(filePath);
+                                    });
+                                }
+                            )
+                        );
+                    })
+            );
+        }
+
+        req.body.cover = getDataUploaded.cover;
+        req.body.gallery = getDataUploaded.gallery;
+        next();
+    } catch (err) {
+        res.status(400).send({ message: err.message });
+    }
 };

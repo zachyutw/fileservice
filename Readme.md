@@ -12,6 +12,9 @@ A Node file service supports multiple real world use cases.
 -   image upload support
 -   resize image support
 -   water mark support
+-   userId support
+-   cors support
+-   swagger support
 
 # license
 

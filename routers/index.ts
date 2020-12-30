@@ -1,17 +1,15 @@
+import uploadRoute from './upload.route';
 import express from 'express';
-import {
-    uploadProductImage,
-    resizeImage,
-} from '../modules/uploadFiles/imagesHandler';
-import { uploadFile } from '../modules/uploadFiles/filesHandler';
-const router = express.Router();
+import path from 'path';
+import { ROOT_PATH } from '../config';
 
-router.post('/files', uploadFile, (req, res) => {
-    console.log(req.body);
-    res.send(req.body);
-});
-router.post('/images', uploadProductImage, resizeImage, (req, res) => {
-    res.send(req.body);
-});
-
-export default router;
+export default function (app: express.Application) {
+    app.use('/upload', uploadRoute);
+    app.get('/download/*', (req, res) => {
+        return res.download(
+            path.join(ROOT_PATH, req.originalUrl.replace('download', 'assets'))
+        );
+    });
+    app.use('/assets', express.static(path.join(ROOT_PATH, 'assets')));
+    app.get('/', (req, res) => res.send('Image Upload Server'));
+}

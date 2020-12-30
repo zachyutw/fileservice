@@ -4,15 +4,17 @@ import multer from 'multer';
 import namingFiles from './utils/namingFiles';
 import mkdirp from 'mkdirp';
 
-const FILES_STORAGE_DESTINATION_PATH = path.join(ROOT_PATH, 'assets', 'files');
+const FILES_STORAGE_DESTINATION_PATH = path.join('assets', 'files');
 const MAX_SIZE = 1 * 1000 * 1000;
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
+        const userId = req.body.userId || req.query.userId;
         const { uploadPath } = namingFiles(
             ROOT_PATH,
             SERVER_DOMAIN,
-            FILES_STORAGE_DESTINATION_PATH
+            FILES_STORAGE_DESTINATION_PATH,
+            userId
         );
         mkdirp(uploadPath).then(() => cb(null, uploadPath));
     },
@@ -29,15 +31,18 @@ export const uploadFile = (req, res, next) => {
         if (err) {
             res.send(err);
         } else {
-            const { uploadPath } = namingFiles(
-                ROOT_PATH,
-                SERVER_DOMAIN,
-                FILES_STORAGE_DESTINATION_PATH
-            );
-            console.log(uploadPath);
-            const files = (req.files as any[]).map((file) =>
-                file.path.replace(ROOT_PATH, process.env.SERVER_DOMAIN)
-            );
+            const files = (req.files as any[]).map((file) => {
+                //assign domain to file url
+                const serverDomainFileUrl = file.path.replace(
+                    ROOT_PATH,
+                    process.env.SERVER_DOMAIN
+                );
+                const serverDomainFilePath = file.path.replace(ROOT_PATH, '');
+                file.path = serverDomainFilePath;
+                file.destination = serverDomainFilePath;
+                file.url = serverDomainFileUrl;
+                return file;
+            });
             req.body.files = files;
             next();
         }

@@ -5,3 +5,4 @@ export const SERVER_DOMAIN =
 export const WATER_MARK_LOGO =
     process.env.WATER_MARK_LOGO ||
     'https://upload.wikimedia.org/wikipedia/en/thumb/9/9f/Australian_Defence_Force_Academy_coat_of_arms.svg/1200px-Australian_Defence_Force_Academy_coat_of_arms.svg.png';
+export const WHITE_LIST = process.env.WHITE_LIST || 'http://localhost:18512';

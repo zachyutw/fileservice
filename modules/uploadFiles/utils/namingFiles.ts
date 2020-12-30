@@ -1,13 +1,16 @@
 import path from 'path';
+import { ROOT_PATH } from '../../../config';
 
 const namingFiles: (
     rootPath: string,
     fileDomain: string,
-    destinationPath: string
+    destinationPath: string,
+    user: string
 ) => { fileUrl: string; uploadPath: string } = (
     rootPath,
     fileDomain,
-    destinationPath
+    destinationPath,
+    user = 'default'
 ) => {
     const today = new Date();
     const year = today.getFullYear().toString();
@@ -18,27 +21,16 @@ const namingFiles: (
         year,
         month
     )}`;
-    const uploadPath = path.join(rootPath, destinationPath, year, month);
+    const uploadPath = path.join(rootPath, destinationPath, user, year, month);
+    const fileDestination = path
+        .join(rootPath, destinationPath, user, year, month)
+        .replace(ROOT_PATH, '');
+
     return {
         fileUrl,
         uploadPath,
+        fileDestination,
     };
-};
-
-export const namingFileUrl: (fileDomain: string) => string = (fileDomain) => {
-    const today = new Date();
-    const year = today.getFullYear().toString();
-    const month = `${today.getMonth() + 1}`.padStart(2, '0');
-
-    return path.join(fileDomain, 'uploads', year, month);
-};
-export const namingUploadPath: (destinationPath: string) => string = (
-    destinationPath
-) => {
-    const today = new Date();
-    const year = today.getFullYear().toString();
-    const month = `${today.getMonth() + 1}`.padStart(2, '0');
-    return path.join(destinationPath, year, month);
 };
 
 export default namingFiles;

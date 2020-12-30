@@ -4,7 +4,7 @@
     "description": "node file service",
     "main": "index.js",
     "scripts": {
-        "build": "tsc --project ./ && node ./serve/index.js",
+        "build": "tsc --project ./",
         "serve": "npm run build && node ./serve/index.js",
         "start": "nodemon index.ts",
         "test": "cross-env NODE_ENV=test jest --testTimeout=10000"

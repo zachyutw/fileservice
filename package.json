@@ -5,9 +5,11 @@
     "main": "index.js",
     "scripts": {
         "build": "tsc --project ./",
-        "serve": "npm run build && node ./serve/index.js",
-        "start": "nodemon index.ts",
-        "test": "cross-env NODE_ENV=test jest --testTimeout=10000"
+        "start": "node ./serve/index.js",
+        "dev": "nodemon index.ts",
+        "test": "cross-env NODE_ENV=test jest --testTimeout=10000",
+        "heroku-deploy": "git push heroku main",
+        "heroku-confirm": "heroku ps:scale web=1"
     },
     "keywords": [
         "node",

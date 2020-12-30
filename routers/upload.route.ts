@@ -4,6 +4,7 @@ import {
     resizeImage,
 } from '../modules/uploadFiles/imagesHandler';
 import { uploadFile } from '../modules/uploadFiles/filesHandler';
+import clearFileHandler from '../modules/uploadFiles/clearFileHandler';
 const router = express.Router();
 
 router.post(
@@ -27,5 +28,7 @@ router.post(
         res.status(200).send(req.body);
     }
 );
+
+router.delete('/clear', clearFileHandler);
 
 export default router;

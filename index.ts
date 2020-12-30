@@ -1,10 +1,9 @@
 import express from 'express';
-import * as dotenv from 'dotenv';
 import cors from 'cors';
 import { SERVER_PORT, WHITE_LIST } from './config';
 import routers from './routers';
 import errorHandler from './modules/errorCollector/errorHandler';
-dotenv.config();
+
 // rest of the code remains same
 
 const app = express();

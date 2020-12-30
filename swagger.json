@@ -4,7 +4,10 @@
         "title": "API Title",
         "version": "1.0"
     },
-    "servers": [{ "url": "http://localhost:8000" }],
+    "servers": [
+        { "url": "http://localhost:8000" },
+        { "url": "https://files-service.herokuapp.com" }
+    ],
     "components": {
         "schemas": {
             "Image": {
@@ -170,6 +173,38 @@
                                                 "type": "object",
                                                 "$ref": "#/components/schemas/ResizedImage"
                                             }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/upload/clear": {
+            "delete": {
+                "description": "file delete",
+                "parameters": [
+                    {
+                        "in": "query",
+                        "name": "directory",
+                        "schema": {
+                            "type": "string"
+                        },
+                        "allowEmptyValue": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "message": {
+                                            "type": "string"
                                         }
                                     }
                                 }

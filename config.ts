@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 export const ROOT_PATH = __dirname;
 export const SERVER_PORT = process.env.PORT || 80;
 export const SERVER_DOMAIN =

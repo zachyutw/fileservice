@@ -6,6 +6,7 @@
         "rootDir": "./",
         "outDir": "./serve",
         "esModuleInterop": true,
+        "resolveJsonModule": true,
         "strict": false
     }
 }

@@ -1,5 +1,5 @@
 import path from 'path';
-import { ROOT_PATH, SERVER_DOMAIN } from '../../config';
+import { ROOT_PATH } from '../../config';
 import multer from 'multer';
 import namingFiles from './utils/namingFiles';
 import mkdirp from 'mkdirp';
@@ -10,12 +10,11 @@ const MAX_SIZE = 1 * 1000 * 1000;
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const userId = req.body.userId || req.query.userId;
-        const { uploadPath } = namingFiles(
-            ROOT_PATH,
-            SERVER_DOMAIN,
-            FILES_STORAGE_DESTINATION_PATH,
-            userId
-        );
+        const { uploadPath } = namingFiles({
+            fileDomain: `${req.protocol}://${req.get('host')}`,
+            destinationPath: FILES_STORAGE_DESTINATION_PATH,
+            user: userId,
+        });
         mkdirp(uploadPath).then(() => cb(null, uploadPath));
     },
     filename: (req, file, cb) =>
@@ -35,7 +34,7 @@ export const uploadFile = (req, res, next) => {
                 //assign domain to file url
                 const serverDomainFileUrl = file.path.replace(
                     ROOT_PATH,
-                    process.env.SERVER_DOMAIN
+                    `${req.protocol}://${req.get('host')}`
                 );
                 const serverDomainFilePath = file.path.replace(ROOT_PATH, '');
                 file.path = serverDomainFilePath;

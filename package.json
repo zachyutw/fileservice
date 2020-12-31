@@ -25,7 +25,7 @@
         "email": "zachyu.tw@gmail.com"
     },
     "heroku": {
-        "url": "https://protected-ravine-86255.herokuapp.com"
+        "url": "https://files-service.herokuapp.com"
     },
     "license": "MIT",
     "dependencies": {

@@ -61,12 +61,12 @@ export const resizeImage = async (req, res, next) => {
     try {
         const filename: string = `images-${Date.now()}.jpeg`;
         const userId = req.body.userId || req.query.userId;
-        const { fileUrl, uploadPath } = namingFiles(
-            ROOT_PATH,
-            SERVER_DOMAIN,
-            IMAGES_STORAGE_DESTINATION_PATH,
-            userId
-        );
+        const { fileUrl, uploadPath } = namingFiles({
+            fileDomain: `${req.protocol}://${req.get('host')}`,
+            destinationPath: IMAGES_STORAGE_DESTINATION_PATH,
+            user: userId,
+            type: 'gallery',
+        });
 
         const sizes = [
             {
@@ -117,7 +117,7 @@ export const resizeImage = async (req, res, next) => {
                             Object.values(rest).map(
                                 async ({ path: imagePath }) => {
                                     const filePath = imagePath.replace(
-                                        SERVER_DOMAIN,
+                                        `${req.protocol}://${req.host}`,
                                         ROOT_PATH
                                     );
                                     await watermarking(

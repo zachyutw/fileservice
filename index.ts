@@ -3,7 +3,7 @@ import cors from 'cors';
 import { SERVER_PORT, WHITE_LIST } from './config';
 import routers from './routers';
 import errorHandler from './modules/errorCollector/errorHandler';
-
+import ejs from 'ejs';
 // rest of the code remains same
 
 const app = express();
@@ -21,6 +21,8 @@ const corsOptions = {
         }
     },
 };
+// set the view engine to ejs
+app.set('view engine', 'ejs');
 
 app.use(cors(corsOptions));
 

@@ -1,9 +1,11 @@
 import path from 'path';
-import { ROOT_PATH, SERVER_DOMAIN, WATER_MARK_LOGO } from '../../config';
+import express from 'express';
+import { ROOT_PATH, WATER_MARK_LOGO } from '../../config';
 import multer from 'multer';
 import MulterSharpResizer from 'multer-sharp-resizer';
 import namingFiles from './utils/namingFiles';
 import Jimp from 'jimp';
+import getBaseUrl from '../../utils/getBaseUrl';
 
 const IMAGES_STORAGE_DESTINATION_PATH = path.join('assets', 'images');
 const MAX_SIZE = 1 * 1000 * 1000;
@@ -31,7 +33,7 @@ export const uploadProductImage = multer({
     { name: 'gallery', maxCount: GALLERY_MAX_COUNT },
 ]);
 
-const watermarking = async (originalImage, logoImage) => {
+const watermarking = async (originalImage: string, logoImage: string) => {
     // console.log(originalImage);
     // const [image, logo] = await Promise.all([
     //     Jimp.read(originalImage),
@@ -57,12 +59,16 @@ const watermarking = async (originalImage, logoImage) => {
     });
 };
 
-export const resizeImage = async (req, res, next) => {
+export const resizeImage = async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+) => {
     try {
         const filename: string = `images-${Date.now()}.jpeg`;
         const userId = req.body.userId || req.query.userId;
         const { fileUrl, uploadPath } = namingFiles({
-            fileDomain: `${req.protocol}://${req.get('host')}`,
+            fileDomain: getBaseUrl(req),
             destinationPath: IMAGES_STORAGE_DESTINATION_PATH,
             user: userId,
             type: 'gallery',
@@ -116,13 +122,14 @@ export const resizeImage = async (req, res, next) => {
                         await Promise.all(
                             Object.values(rest).map(
                                 async ({ path: imagePath }) => {
-                                    const filePath = imagePath.replace(
+                                    const filePath: string = imagePath.replace(
                                         `${req.protocol}://${req.host}`,
                                         ROOT_PATH
                                     );
                                     await watermarking(
                                         filePath,
-                                        req.query.logoImage || WATER_MARK_LOGO
+                                        (req.query.logoImage as string) ||
+                                            WATER_MARK_LOGO
                                     ).then((image) => {
                                         image.write(filePath);
                                     });

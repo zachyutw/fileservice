@@ -15,6 +15,7 @@ A Node file service supports multiple real world use cases.
 -   userId support
 -   cors support
 -   swagger support
+-   ejs support
 
 # Demo
 

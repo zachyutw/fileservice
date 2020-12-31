@@ -2,6 +2,7 @@ import path from 'path';
 import { ROOT_PATH } from '../../config';
 import multer from 'multer';
 import namingFiles from './utils/namingFiles';
+import getBaseUrl from '../../utils/getBaseUrl';
 import mkdirp from 'mkdirp';
 
 const FILES_STORAGE_DESTINATION_PATH = path.join('assets', 'files');
@@ -11,7 +12,7 @@ const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const userId = req.body.userId || req.query.userId;
         const { uploadPath } = namingFiles({
-            fileDomain: `${req.protocol}://${req.get('host')}`,
+            fileDomain: getBaseUrl(req),
             destinationPath: FILES_STORAGE_DESTINATION_PATH,
             user: userId,
         });
@@ -34,7 +35,7 @@ export const uploadFile = (req, res, next) => {
                 //assign domain to file url
                 const serverDomainFileUrl = file.path.replace(
                     ROOT_PATH,
-                    `${req.protocol}://${req.get('host')}`
+                    getBaseUrl(req)
                 );
                 const serverDomainFilePath = file.path.replace(ROOT_PATH, '');
                 file.path = serverDomainFilePath;

@@ -4,6 +4,7 @@ import path from 'path';
 import { ROOT_PATH } from '../config';
 import swaggerUi from 'swagger-ui-express';
 import swaggerDocument from '../swagger.json';
+import packageJson from '../package.json';
 
 export default function (app: express.Application) {
     app.use('/upload', uploadRoute);
@@ -17,6 +18,9 @@ export default function (app: express.Application) {
     app.use('/swagger', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
     app.use('/clear', () => {});
     app.get('/', (req, res) =>
-        res.sendFile(path.join(ROOT_PATH, 'index.html'))
+        res.render('pages/index', {
+            author: packageJson.author,
+            version: packageJson.version,
+        })
     );
 }

@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <title>Sample Site</title>
+        <title>File management API Service</title>
 
         <link
             rel="stylesheet"
@@ -16,8 +16,15 @@
     </head>
     <body>
         <div class="container">
+            <div>
+                <h2>Version:<%= version%></h2>
+            </div>
             <div class="jumbotron">
-                <h1>Zach's file service is running</h1>
+                <h1>file service is running</h1>
+            </div>
+            <div>
+                <h5>Name: <%= author.name%></h5>
+                <h5>Email: <%= author.email%></h5>
             </div>
         </div>
     </body>

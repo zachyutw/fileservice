@@ -1,13 +1,15 @@
 import path from 'path';
-import express from 'express';
-import { ROOT_PATH, WATER_MARK_LOGO } from '../../config';
+import express, { Express } from 'express';
+import { ROOT_PATH, WATER_MARK_LOGO } from '../../../config';
 import multer from 'multer';
 import MulterSharpResizer from 'multer-sharp-resizer';
-import namingFiles from './utils/namingFiles';
+import namingFiles from '../utils/namingFiles';
 import Jimp from 'jimp';
-import getBaseUrl from '../../utils/getBaseUrl';
+import { getBaseUrl, getYYYYMMPath } from '../../../utils';
+import mkdirp from 'mkdirp';
 
 const IMAGES_STORAGE_DESTINATION_PATH = path.join('assets', 'images');
+
 const MAX_SIZE = 1 * 1000 * 1000;
 
 const COVER_MAX_COUNT = 2;
@@ -33,15 +35,24 @@ export const uploadProductImage = multer({
     { name: 'gallery', maxCount: GALLERY_MAX_COUNT },
 ]);
 
-const watermarking = async (originalImage: string, logoImage: string) => {
+export const uploadImageBuffer = multer({
+    storage: multerStorage,
+    limits: { fieldSize: MAX_SIZE },
+    fileFilter,
+}).fields([{ name: 'images', maxCount: GALLERY_MAX_COUNT }]);
+
+const watermarking = async (
+    originalImage: Buffer | string,
+    logoImage: Buffer | string
+) => {
     // console.log(originalImage);
     // const [image, logo] = await Promise.all([
     //     Jimp.read(originalImage),
     //     Jimp.read(LOGO),
     // ]);
 
-    const logo = await Jimp.read(logoImage);
-    const image = await Jimp.read(originalImage);
+    const logo = await Jimp.read(logoImage as string);
+    const image = await Jimp.read(originalImage as string);
 
     // console.log(logo);
     logo.resize(image.bitmap.width / 10, Jimp.AUTO);
@@ -59,6 +70,52 @@ const watermarking = async (originalImage: string, logoImage: string) => {
     });
 };
 
+type WaterMarkImageConfig = {
+    type?: 'buffer' | 'file';
+    destination?: string;
+};
+
+export const waterMarkImages = (config: WaterMarkImageConfig) => async (
+    req: express.Request,
+    res: express.Response,
+    next: express.NextFunction
+) => {
+    const imageFiles = (req.files as {
+        [fieldname: string]: Express.Multer.File[];
+    }).images;
+
+    const waterMarkedImageFiles = await Promise.all(
+        imageFiles.map(async (file) => {
+            if (config.type === 'file') {
+                file.path = await watermarking(
+                    file.buffer,
+                    (req.query.logoImage as string) || WATER_MARK_LOGO
+                ).then(async (image) => {
+                    const writingPath = path.join(
+                        config.destination,
+                        file.originalname
+                    );
+                    await image.writeAsync(writingPath);
+                    return writingPath;
+                });
+            } else {
+                file.buffer = await watermarking(
+                    file.buffer,
+                    (req.query.logoImage as string) || WATER_MARK_LOGO
+                ).then(
+                    async (image) => await image.getBufferAsync(file.mimetype)
+                );
+            }
+
+            return file;
+        })
+    );
+    (req.files as {
+        [fieldname: string]: Express.Multer.File[];
+    }).images = waterMarkedImageFiles;
+    next();
+};
+
 export const resizeImage = async (
     req: express.Request,
     res: express.Response,
@@ -67,13 +124,18 @@ export const resizeImage = async (
     try {
         const filename: string = `images-${Date.now()}.jpeg`;
         const userId = req.body.userId || req.query.userId;
-        const { fileUrl, uploadPath } = namingFiles({
-            fileDomain: getBaseUrl(req),
-            destinationPath: IMAGES_STORAGE_DESTINATION_PATH,
-            user: userId,
-            type: 'gallery',
-        });
 
+        const fileUrl = path.join(
+            getBaseUrl(req),
+            IMAGES_STORAGE_DESTINATION_PATH,
+            userId,
+            getYYYYMMPath()
+        );
+        const uploadPath = path.join(
+            ROOT_PATH,
+            IMAGES_STORAGE_DESTINATION_PATH,
+            userId
+        );
         const sizes = [
             {
                 path: 'original',

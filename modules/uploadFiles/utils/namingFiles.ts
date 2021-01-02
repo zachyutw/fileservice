@@ -14,6 +14,13 @@ type NamedUrlAndPath = {
     fileDestination: string;
 };
 
+export const NamingYearMonthDirectoryPath = () => {
+    const today = new Date();
+    const year = today.getFullYear().toString();
+    const month = `${today.getMonth() + 1}`.padStart(2, '0');
+    return path.join(year, month);
+};
+
 function namingFiles(config: NamingFiles): NamedUrlAndPath {
     const { fileDomain, destinationPath, user = 'default', type } = config;
     const today = new Date();

@@ -133,14 +133,7 @@
                             "schema": {
                                 "type": "object",
                                 "properties": {
-                                    "gallery": {
-                                        "type": "array",
-                                        "items": {
-                                            "type": "string",
-                                            "format": "binary"
-                                        }
-                                    },
-                                    "cover": {
+                                    "images": {
                                         "type": "array",
                                         "items": {
                                             "type": "string",

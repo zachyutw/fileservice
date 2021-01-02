@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { ROOT_PATH } from '../../config';
+import { ROOT_PATH } from '../../../config';
 
 const clearFileHandler = (req, res, next) => {
     const { directory } = req.query;

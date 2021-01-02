@@ -1,8 +1,7 @@
 import path from 'path';
-import { ROOT_PATH } from '../../config';
+import { ROOT_PATH } from '../../../config';
 import multer from 'multer';
-import namingFiles from './utils/namingFiles';
-import getBaseUrl from '../../utils/getBaseUrl';
+import getBaseUrl from '../../../utils/getBaseUrl';
 import mkdirp from 'mkdirp';
 
 const FILES_STORAGE_DESTINATION_PATH = path.join('assets', 'files');
@@ -11,11 +10,12 @@ const MAX_SIZE = 1 * 1000 * 1000;
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const userId = req.body.userId || req.query.userId;
-        const { uploadPath } = namingFiles({
-            fileDomain: getBaseUrl(req),
-            destinationPath: FILES_STORAGE_DESTINATION_PATH,
-            user: userId,
-        });
+        const uploadPath = path.join(
+            ROOT_PATH,
+            FILES_STORAGE_DESTINATION_PATH,
+            userId
+        );
+
         mkdirp(uploadPath).then(() => cb(null, uploadPath));
     },
     filename: (req, file, cb) =>
